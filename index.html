@@ -1,0 +1,243 @@
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site Web Discord avec Vidéo en Arrière-plan, Audio et Particules</title>
+<style>
+  @font-face {
+    font-family: 'ProggyTiny';
+    src: url('ProggyTiny.ttf') format('truetype');
+  }
+
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'ProggyTiny', monospace;
+    background-color: transparent;
+  }
+  #video-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+  }
+  #video-background {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+  }
+  .content {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    text-align: center;
+  }
+  .btn {
+    display: inline-block;
+    padding: 20px 40px;
+    font-size: 28px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #fff;
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    background: rgba(128, 128, 128, 0.7);
+    font-family: 'ProggyTiny', monospace !important;
+  }
+  .btn:hover {
+    transform: scale(1.05);
+    background: #FF0000;
+  }
+  .btn:active {
+    transform: scale(0.95);
+  }
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+  }
+  .enter-btn {
+    font-size: 24px;
+    padding: 15px 30px;
+    background: rgba(128, 128, 128, 0.7);
+    color: white;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'ProggyTiny', monospace !important;
+    position: relative;
+    z-index: 1001;
+  }
+  .enter-btn:hover {
+    transform: scale(1.05);
+    background: #FF0000;
+  }
+  #particles-js {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 999;
+    transition: opacity 0.5s ease-in-out;
+  }
+  .fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div class="overlay" id="overlay">
+    <div id="particles-js"></div>
+    <button class="enter-btn" id="enterBtn">
+      ENTER
+    </button>
+  </div>
+
+  <div id="video-container">
+    <video id="video-background" loop muted>
+      <source src="video.mp4" type="video/mp4">
+      Votre navigateur ne supporte pas la balise vidéo.
+    </video>
+  </div>
+
+  <audio id="background-audio" loop>
+    <source src="audio.mp3" type="audio/mpeg">
+    Votre navigateur ne supporte pas la balise audio.
+  </audio>
+
+  <div class="content">
+    <button class="btn">
+      Discord
+    </button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const video = document.getElementById('video-background');
+      const audio = document.getElementById('background-audio');
+      const videoContainer = document.getElementById('video-container');
+      const overlay = document.getElementById('overlay');
+      const enterBtn = document.getElementById('enterBtn');
+      const particlesContainer = document.getElementById('particles-js');
+      
+      particlesJS("particles-js", {
+        particles: {
+          number: { value: 80, density: { enable: true, value_area: 800 } },
+          color: { value: "#ff0000" },
+          shape: {
+            type: "triangle",
+            stroke: { width: 0, color: "#000000" },
+          },
+          opacity: {
+            value: 0.5,
+            random: false,
+            anim: { enable: false, speed: 1, opacity_min: 0.1, sync: false }
+          },
+          size: {
+            value: 5,
+            random: true,
+            anim: { enable: false, speed: 40, size_min: 0.1, sync: false }
+          },
+          line_linked: { enable: false },
+          move: {
+            enable: true,
+            speed: 6,
+            direction: "none",
+            random: false,
+            straight: false,
+            out_mode: "out",
+            bounce: false,
+            attract: { enable: false, rotateX: 600, rotateY: 1200 }
+          }
+        },
+        interactivity: {
+          detect_on: "canvas",
+          events: {
+            onhover: { enable: true, mode: "repulse" },
+            onclick: { enable: true, mode: "push" },
+            resize: true
+          },
+          modes: {
+            repulse: { distance: 200, duration: 0.4 },
+            push: { particles_nb: 4 }
+          }
+        },
+        retina_detect: true
+      });
+      
+      function playVideoAndAudio() {
+        video.play().catch(error => {
+          console.error("Error playing video:", error);
+        });
+        audio.play().catch(error => {
+          console.error("Error playing audio:", error);
+        });
+      }
+      
+      function resizeVideo() {
+        const videoRatio = video.videoWidth / video.videoHeight;
+        const containerRatio = videoContainer.clientWidth / videoContainer.clientHeight;
+        
+        if (containerRatio > videoRatio) {
+          video.style.width = '100%';
+          video.style.height = 'auto';
+        } else {
+          video.style.width = 'auto';
+          video.style.height = '100%';
+        }
+      }
+      
+      enterBtn.addEventListener('click', () => {
+        overlay.classList.add('fade-out');
+        particlesContainer.classList.add('fade-out');
+        
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          particlesContainer.style.display = 'none';
+          playVideoAndAudio();
+          resizeVideo();
+        }, 500);
+      });
+      
+      window.addEventListener('resize', resizeVideo);
+      
+      video.addEventListener('loadedmetadata', resizeVideo);
+      
+      const discordButton = document.querySelector('.btn');
+      discordButton.addEventListener('click', () => {
+        window.open('https://discord.gg/your-discord-invite', '_blank');
+      });
+
+      // Préchargement de la vidéo et de l'audio
+      video.load();
+      audio.load();
+    });
+  </script>
+</body>
+</html>
